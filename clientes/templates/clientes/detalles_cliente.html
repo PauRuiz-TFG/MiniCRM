@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles del Cliente</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .btn-primary,
+        .table-primary {
+            background-color: #198754;
+            border-color: #198754;
+            color: white;
+        }
+
+        .btn-outline-primary {
+            background-color: transparent;
+            color: #198754;
+            border-color: #198754;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #198754;
+            color: white;
+        }
+
+        .card {
+            border: 1px solid #198754;
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.15);
+        }
+        
+        /* para que el banner se quede abajo */
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1; /* Esto hace que main ocupe todo el espacio disponible */
+        }
+
+        .footer-link:hover { 
+            text-decoration: underline !important; 
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<!-- Banner -->
+<header class="bg-success text-white py-3 mb-4 shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" style="height:40px;" class="me-2">
+            <h4 class="mb-0">MiniCRM - Detalles del Cliente</h4>
+        </div>
+        <a href="{% url 'lista_clientes' %}" class="btn btn-outline-light btn-sm">
+            <i class="fa fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+</header>
+
+<!-- para que salgan mensajes de contacto creado, borrado... -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="flex-fill container">
+
+    <!-- DATOS CLIENTE -->
+    <div class="card mb-4">
+        <div class="card-header table-primary d-flex justify-content-between align-items-center">
+            <strong>Datos del cliente</strong>
+            <div>
+                <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-sm btn-outline-light me-2">
+                    <i class="fa fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'eliminar_cliente' cliente.id %}" class="btn btn-sm btn-outline-light"
+                   onclick="return confirm('¿Eliminar cliente?');">
+                    <i class="fa fa-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
+            <p><strong>Email:</strong> {{ cliente.email }}</p>
+            <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
+            <p><strong>Empresa:</strong> {{ cliente.empresa }}</p>
+            {% if cliente.notas %}
+            <p><strong>Notas:</strong><br>{{ cliente.notas }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- CONTACTOS -->
+    <div class="card">
+        <div class="card-header table-primary d-flex justify-content-between align-items-center">
+            <strong>Contactos</strong>
+            <a href="{% url 'nuevo_contacto' cliente.id %}" class="btn btn-sm btn-outline-light">
+                <i class="fa fa-user-plus"></i> Añadir contacto
+            </a>
+        </div>
+
+        <div class="card-body">
+            {% if contactos %}
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contacto in contactos %}
+                    <tr>
+                        <td>{{ contacto.nombre }}</td>
+                        <td>{{ contacto.cargo }}</td>
+                        <td>{{ contacto.email }}</td>
+                        <td>{{ contacto.telefono }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'editar_contacto' contacto.id %}" title="Editar" class="me-2 text-decoration-none">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'eliminar_contacto' contacto.id %}" title="Borrar" class="text-danger"
+                               onclick="return confirm('¿Eliminar contacto?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="p-3 text-center text-muted">
+                No hay contactos registrados para este cliente
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+
+
+    <!-- ACTIVIDADES -->
+    <div class="card mt-4">
+        <div class="card-header table-primary d-flex justify-content-between align-items-center">
+            <strong>Actividad reciente</strong>
+            <a href="{% url 'nueva_actividad' cliente.id %}" class="btn btn-sm btn-outline-light">
+                <i class="fa fa-plus"></i> Añadir actividad
+            </a>
+        </div>
+        <div class="card-body">
+            {% if actividades %}
+                <ul class="list-group list-group-flush">
+                    {% for actividad in actividades %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <!-- Información de la actividad -->
+                            <div>
+                                <div class="mb-1">
+                                    <span class="badge bg-success me-2">
+                                        {{ actividad.get_tipo_display }}
+                                    </span>
+                                    {{ actividad.descripcion }}
+                                </div>
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="text-end">
+                                <small class="text-muted me-3">
+                                    {{ actividad.fecha|date:"d/m/Y H:i" }}
+                                </small>
+                                <a href="{% url 'editar_actividad' actividad.id %}" class="me-2 text-decoration-none">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="{% url 'eliminar_actividad' actividad.id %}" class="text-danger"
+                                    onclick="return confirm('¿Eliminar actividad?');">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="p-3 text-center text-muted">
+                    No hay actividades registradas para este cliente
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-3 mt-5 shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            &copy; 2026 MiniCRM. Todos los derechos reservados.
+        </div>
+        <div>
+           <a href="https://www.linkedin.com/in/pau-ruiz-guti%C3%A9rrez-55abb0360/" 
+            class="text-white footer-link" target="_blank" style="text-decoration: none;">
+            Pau Ruiz
+            </a>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
