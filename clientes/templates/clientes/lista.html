@@ -7,6 +7,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
         /* VERDE */
@@ -86,8 +87,6 @@
                 <h4 class="mb-0">MiniCRM - Gestión de Clientes</h4>
             </div>
 
-
-
         <div class="d-flex flex-column align-items-end text-white" style="line-height: 1.1;">
             <strong>
                 {{ request.user.username }}
@@ -102,9 +101,6 @@
                 </button>
             </form>
         </div>
-
-
-
 
         </div>
     </header>
@@ -124,52 +120,112 @@
 
 <!-- Nuevo cliente -->
 <main class="container mt-4 flex-fill">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Botón Nuevo Cliente -->
-        <a href="{% url 'nuevo_cliente' %}" class="btn btn-primary">+ Nuevo Cliente</a>
+    <div class="row g-3 mb-3">
 
-        <!-- Barra de búsqueda -->
-        <form method="get" class="d-flex align-items-center mb-0">
-            <input type="text" name="q" value="{{ query|default:'' }}" 
-                   class="form-control form-control-sm me-2" 
-                   placeholder="Buscar nombre/email" style="width: 200px;">
-            <button type="submit" class="btn btn-outline-primary btn-sm">Buscar</button>
-        </form>
+        <!-- Botón -->
+        <div class="col-12 col-md-6">
+            <a href="{% url 'nuevo_cliente' %}" 
+            class="btn btn-primary w-100 w-md-auto">
+                + Nuevo Cliente
+            </a>
+        </div>
+
+        <!-- Buscador -->
+        <div class="col-12 col-md-6">
+            <form method="get" class="d-flex">
+                <input type="text" name="q" 
+                    value="{{ query|default:'' }}"
+                    class="form-control me-2"
+                    placeholder="Buscar nombre/email">
+                <button type="submit" 
+                        class="btn btn-outline-primary">
+                    Buscar
+                </button>
+            </form>
+        </div>
+
     </div>
 
+
 <!-- Tabla de clientes -->
-    <table class="table table-striped table-hover table-bordered">
-        <thead class="table-primary">
-            <tr>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th style="width: 80px;" class="text-center">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in clientes %}
-            <tr>
-                <td> <!-- nombre cliente clicable -->
-                    <a href="{% url 'detalles_cliente' c.id %}" class="cliente-link">
+    <div class="d-none d-md-block">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+
+
+                <thead class="table-primary">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th style="width: 80px;" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}
+                    <tr>
+                        <td> <!-- nombre cliente clicable -->
+                            <a href="{% url 'detalles_cliente' c.id %}" class="cliente-link">
+                                {{ c.nombre }}
+                            </a>
+                        </td>
+                        <td>{{ c.telefono }}</td>
+                        <td>{{ c.email }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'editar_cliente' c.id %}" title="Editar" class="me-2 text-decoration-none">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'eliminar_cliente' c.id %}" title="Borrar" class="text-decoration-none"
+                                onclick="return confirm('¿Seguro que quieres eliminar este cliente?');">
+                                <i class="fa fa-trash" style="color: red;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="d-md-none">
+
+        {% for c in clientes %}
+        <div class="card shadow-sm mb-3 border-0 rounded-3">
+            <div class="card-body">
+
+                <h6 class="fw-bold text-success mb-2">
+                    <a href="{% url 'detalles_cliente' c.id %}" class="text-decoration-none text-success">
                         {{ c.nombre }}
                     </a>
-                </td>
-                <td>{{ c.telefono }}</td>
-                <td>{{ c.email }}</td>
-                <td class="text-center">
-                    <a href="{% url 'editar_cliente' c.id %}" title="Editar" class="me-2 text-decoration-none">
+                </h6>
+
+                <p class="mb-1">
+                    <strong>Teléfono:</strong> {{ c.telefono }}
+                </p>
+
+                <p class="mb-2">
+                    <strong>Email:</strong> {{ c.email }}
+                </p>
+
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'editar_cliente' c.id %}" 
+                    class="btn btn-sm btn-outline-secondary me-2">
                         <i class="fa fa-edit"></i>
                     </a>
-                    <a href="{% url 'eliminar_cliente' c.id %}" title="Borrar" class="text-decoration-none"
-                        onclick="return confirm('¿Seguro que quieres eliminar este cliente?');">
-                        <i class="fa fa-trash" style="color: red;"></i>
+
+                    <a href="{% url 'eliminar_cliente' c.id %}" 
+                    class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('¿Seguro que quieres eliminar este cliente?');">
+                        <i class="fa fa-trash"></i>
                     </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
 
 <!-- Páginas -->
 {% if clientes.has_other_pages %}

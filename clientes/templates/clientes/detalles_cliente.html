@@ -11,6 +11,8 @@
     <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
         .btn-primary,
         .table-primary {
@@ -118,36 +120,84 @@
 
         <div class="card-body">
             {% if contactos %}
-            <table class="table table-striped mb-0">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Cargo</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contacto in contactos %}
-                    <tr>
-                        <td>{{ contacto.nombre }}</td>
-                        <td>{{ contacto.cargo }}</td>
-                        <td>{{ contacto.email }}</td>
-                        <td>{{ contacto.telefono }}</td>
-                        <td class="text-center">
-                            <a href="{% url 'editar_contacto' contacto.id %}" title="Editar" class="me-2 text-decoration-none">
+            <div class="d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cargo</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                            <tr>
+                                <td>{{ contacto.nombre }}</td>
+                                <td>{{ contacto.cargo }}</td>
+                                <td>{{ contacto.email }}</td>
+                                <td>{{ contacto.telefono }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'editar_contacto' contacto.id %}" title="Editar" class="me-2 text-decoration-none">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'eliminar_contacto' contacto.id %}" title="Borrar" class="text-danger"
+                                    onclick="return confirm('¿Eliminar contacto?');">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-md-none">
+
+                {% for contacto in contactos %}
+                <div class="card shadow-sm mb-3 border-0 rounded-3">
+                    <div class="card-body">
+
+                        <h6 class="fw-bold text-success mb-2">
+                            {{ contacto.nombre }}
+                        </h6>
+
+                        <p class="mb-1">
+                            <strong>Cargo:</strong> {{ contacto.cargo }}
+                        </p>
+
+                        <p class="mb-1">
+                            <strong>Email:</strong> {{ contacto.email }}
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Teléfono:</strong> {{ contacto.telefono }}
+                        </p>
+
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'editar_contacto' contacto.id %}" 
+                            class="btn btn-sm btn-outline-secondary me-2">
                                 <i class="fa fa-edit"></i>
                             </a>
-                            <a href="{% url 'eliminar_contacto' contacto.id %}" title="Borrar" class="text-danger"
-                               onclick="return confirm('¿Eliminar contacto?');">
+
+                            <a href="{% url 'eliminar_contacto' contacto.id %}" 
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('¿Eliminar contacto?');">
                                 <i class="fa fa-trash"></i>
                             </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+
             {% else %}
             <div class="p-3 text-center text-muted">
                 No hay contactos registrados para este cliente
@@ -170,39 +220,85 @@
         </div>
         <div class="card-body">
             {% if actividades %}
-                <ul class="list-group list-group-flush">
-                    {% for actividad in actividades %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
+                <div class="d-none d-md-block">
+                    <ul class="list-group list-group-flush">
 
-                            <!-- Información de la actividad -->
-                            <div>
-                                <div class="mb-1">
-                                    <span class="badge bg-success me-2">
-                                        {{ actividad.get_tipo_display }}
-                                    </span>
-                                    {{ actividad.descripcion }}
+                        {% for actividad in actividades %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <!-- Información de la actividad -->
+                                <div>
+                                    <div class="mb-1">
+                                        <span class="badge bg-success me-2">
+                                            {{ actividad.get_tipo_display }}
+                                        </span>
+                                        {{ actividad.descripcion }}
+                                    </div>
                                 </div>
+
+                                <!-- Acciones -->
+                                <div class="text-end">
+                                    <small class="text-muted me-3">
+                                        {{ actividad.fecha|date:"d/m/Y H:i" }}
+                                    </small>
+                                    <a href="{% url 'editar_actividad' actividad.id %}" class="me-2 text-decoration-none">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'eliminar_actividad' actividad.id %}" class="text-danger"
+                                        onclick="return confirm('¿Eliminar actividad?');">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+
+                <div class="d-md-none">
+
+                    {% for actividad in actividades %}
+                    <div class="card shadow-sm mb-3 border-0 rounded-3">
+                        <div class="card-body">
+
+                            <div class="mb-2">
+                                <span class="badge bg-success">
+                                    {{ actividad.get_tipo_display }}
+                                </span>
                             </div>
 
-                            <!-- Acciones -->
-                            <div class="text-end">
-                                <small class="text-muted me-3">
-                                    {{ actividad.fecha|date:"d/m/Y H:i" }}
-                                </small>
-                                <a href="{% url 'editar_actividad' actividad.id %}" class="me-2 text-decoration-none">
+                            <p class="mb-2">
+                                {{ actividad.descripcion }}
+                            </p>
+
+                            <small class="text-muted d-block mb-3">
+                                {{ actividad.fecha|date:"d/m/Y H:i" }}
+                            </small>
+
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'editar_actividad' actividad.id %}" 
+                                class="btn btn-sm btn-outline-secondary me-2">
                                     <i class="fa fa-edit"></i>
                                 </a>
-                                <a href="{% url 'eliminar_actividad' actividad.id %}" class="text-danger"
-                                    onclick="return confirm('¿Eliminar actividad?');">
+
+                                <a href="{% url 'eliminar_actividad' actividad.id %}" 
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Eliminar actividad?');">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
 
                         </div>
-                    </li>
+                    </div>
                     {% endfor %}
-                </ul>
+
+                </div>
+
+
+
             {% else %}
                 <div class="p-3 text-center text-muted">
                     No hay actividades registradas para este cliente
