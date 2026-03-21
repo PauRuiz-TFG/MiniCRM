@@ -4,9 +4,12 @@ from django.contrib import messages  # añadido
 
 # Para la búsqueda
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from django.contrib.auth.decorators import login_required
+
+from django.utils import timezone
+import json
 
 # Create your views here.
 
@@ -196,3 +199,30 @@ def eliminar_actividad(request, actividad_id):
     actividad.delete()
     messages.success(request, 'Actividad eliminada correctamente')
     return redirect('detalles_cliente', cliente_id)
+
+
+@login_required
+def dashboard(request):
+    total_clientes = Cliente.objects.filter(usuario=request.user).count()
+    total_contactos = Contacto.objects.filter(cliente__usuario=request.user).count()
+    total_actividades = Actividad.objects.filter(cliente__usuario=request.user).count()
+
+    actividades_recientes = Actividad.objects.filter(
+        cliente__usuario=request.user
+    ).order_by('-fecha')[:500]
+
+    actividades_por_tipo = Actividad.objects.filter(
+        cliente__usuario=request.user
+    ).values('tipo').annotate(total=Count('tipo')).order_by('tipo')
+
+    labels_actividades = json.dumps([a['tipo'] for a in actividades_por_tipo])
+    totales_actividades = json.dumps([a['total'] for a in actividades_por_tipo])
+
+    return render(request, 'clientes/dashboard.html', {
+        'total_clientes': total_clientes,
+        'total_contactos': total_contactos,
+        'total_actividades': total_actividades,
+        'actividades_recientes': actividades_recientes,
+        'labels_actividades': labels_actividades,
+        'totales_actividades': totales_actividades,
+    })

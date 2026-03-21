@@ -24,8 +24,13 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Home / Dashboard
+    path('', views.dashboard, name='home'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+
     # Clientes
-    path('', views.lista_clientes, name='lista_clientes'),
+    path('clientes/', views.lista_clientes, name='lista_clientes'),
     path('nuevo/', views.nuevo_cliente, name='nuevo_cliente'),
     path('editar/<int:id>/', views.editar_cliente, name='editar_cliente'),
     path('eliminar/<int:id>/', views.eliminar_cliente, name='eliminar_cliente'),
@@ -44,7 +49,7 @@ urlpatterns = [
     # Login
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    ]
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
