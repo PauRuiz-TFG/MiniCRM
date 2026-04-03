@@ -83,7 +83,7 @@
         }
 
         .footer-link:hover {
-            opacity: 0.85;
+            text-decoration: underline !important;;
         }
 
         .chart-wrapper {
@@ -159,13 +159,20 @@
                         <p class="text-muted mb-0">Vista general de tu actividad en MiniCRM</p>
                     </div>
 
-                    <div class="d-flex flex-column flex-md-row top-actions">
+                    <div class="d-flex flex-column flex-md-row gap-2 top-actions">
+
+                        <a href="{% url 'reporte_global' %}" 
+                        class="btn btn-outline-success">
+                            <i class="fa fa-file-pdf me-1"></i> Reporte global
+                        </a>
+
                         <form method="post" action="{% url 'logout' %}" class="m-0">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-success">
                                 Cerrar sesión
                             </button>
                         </form>
+
                     </div>
                 </div>
 
@@ -289,16 +296,14 @@
 </div>
 
 <footer class="bg-dark text-white py-3 mt-5 shadow-sm">
-    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-start">
-        <div class="mb-2 mb-md-0">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
             &copy; 2026 MiniCRM. Todos los derechos reservados.
         </div>
         <div>
-            <a href="https://www.linkedin.com/in/pau-ruiz-guti%C3%A9rrez-55abb0360/"
-               class="text-white footer-link"
-               target="_blank"
-               style="text-decoration: none;">
-                Pau Ruiz
+           <a href="https://www.linkedin.com/in/pau-ruiz-guti%C3%A9rrez-55abb0360/" 
+            class="text-white footer-link" target="_blank" style="text-decoration: none;">
+            Pau Ruiz
             </a>
         </div>
     </div>

@@ -49,6 +49,10 @@ urlpatterns = [
     # Login
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+    # Reporte
+    path('cliente/<int:id>/reporte/', views.reporte_cliente, name='reporte_cliente'),
+    path('reporte-global/', views.reporte_global, name='reporte_global'),
 ]
 
 if settings.DEBUG:

@@ -209,7 +209,7 @@ def dashboard(request):
 
     actividades_recientes = Actividad.objects.filter(
         cliente__usuario=request.user
-    ).order_by('-fecha')[:500]
+    ).order_by('-fecha')[:25]
 
     actividades_por_tipo = Actividad.objects.filter(
         cliente__usuario=request.user
@@ -225,4 +225,42 @@ def dashboard(request):
         'actividades_recientes': actividades_recientes,
         'labels_actividades': labels_actividades,
         'totales_actividades': totales_actividades,
+    })
+
+
+@login_required
+def reporte_cliente(request, id):
+    cliente = get_object_or_404(Cliente, id=id, usuario=request.user)
+    contactos = cliente.contactos.all()
+    actividades = cliente.actividades.order_by('-fecha')
+
+    return render(request, 'clientes/reporte_cliente.html', {
+        'cliente': cliente,
+        'contactos': contactos,
+        'actividades': actividades,
+        'now': timezone.now(),
+    })
+
+
+@login_required
+def reporte_global(request):
+    total_clientes = Cliente.objects.filter(usuario=request.user).count()
+    total_contactos = Contacto.objects.filter(cliente__usuario=request.user).count()
+    total_actividades = Actividad.objects.filter(cliente__usuario=request.user).count()
+
+    actividades_recientes = Actividad.objects.filter(
+        cliente__usuario=request.user
+    ).order_by('-fecha')[:20]
+
+    actividades_por_tipo = Actividad.objects.filter(
+        cliente__usuario=request.user
+    ).values('tipo').annotate(total=Count('tipo'))
+
+    return render(request, 'clientes/reporte_global.html', {
+        'total_clientes': total_clientes,
+        'total_contactos': total_contactos,
+        'total_actividades': total_actividades,
+        'actividades_recientes': actividades_recientes,
+        'actividades_por_tipo': actividades_por_tipo,
+        'now': timezone.now(),
     })
