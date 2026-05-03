@@ -38,17 +38,27 @@ def lista_clientes(request):
         'query': query,
     })
 
+
 # Crear nuevo cliente
 @login_required
 def nuevo_cliente(request):
     if request.method == 'POST':
-        nombre = request.POST['nombre']
-        telefono = request.POST['telefono']
-        email = request.POST['email']
-        empresa = request.POST['empresa']
-        notas = request.POST['notas']
-        
-        # Asignar correctamente el usuario
+        nombre = request.POST.get('nombre', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        empresa = request.POST.get('empresa', '').strip()
+        notas = request.POST.get('notas', '').strip()
+
+        # VALIDACIONES
+        if not nombre:
+            messages.error(request, "El nombre es obligatorio")
+            return render(request, 'clientes/nuevo.html')
+
+        if email and '@' not in email:
+            messages.error(request, "El email no es válido")
+            return render(request, 'clientes/nuevo.html')
+
+        # CREACIÓN
         Cliente.objects.create(
             nombre=nombre,
             telefono=telefono,
@@ -57,22 +67,47 @@ def nuevo_cliente(request):
             notas=notas,
             usuario=request.user
         )
+
+        messages.success(request, "Cliente creado correctamente")
         return redirect('lista_clientes')
+
     return render(request, 'clientes/nuevo.html')
+
 
 # Editar cliente
 @login_required
 def editar_cliente(request, id):
     cliente = get_object_or_404(Cliente, id=id, usuario=request.user)
+
     if request.method == 'POST':
-        cliente.nombre = request.POST['nombre']
-        cliente.telefono = request.POST['telefono']
-        cliente.email = request.POST['email']
-        cliente.empresa = request.POST['empresa']
-        cliente.notas = request.POST['notas']
+        nombre = request.POST.get('nombre', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        empresa = request.POST.get('empresa', '').strip()
+        notas = request.POST.get('notas', '').strip()
+
+        # VALIDACIONES
+        if not nombre:
+            messages.error(request, "El nombre es obligatorio")
+            return render(request, 'clientes/editar.html', {'cliente': cliente})
+
+        if email and '@' not in email:
+            messages.error(request, "El email no es válido")
+            return render(request, 'clientes/editar.html', {'cliente': cliente})
+
+        # GUARDAR
+        cliente.nombre = nombre
+        cliente.telefono = telefono
+        cliente.email = email
+        cliente.empresa = empresa
+        cliente.notas = notas
         cliente.save()
+
+        messages.success(request, "Cliente actualizado correctamente")
         return redirect('lista_clientes')
+
     return render(request, 'clientes/editar.html', {'cliente': cliente})
+
 
 # Eliminar cliente
 @login_required
@@ -89,14 +124,31 @@ def nuevo_contacto(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id, usuario=request.user)
 
     if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        cargo = request.POST.get('cargo', '').strip()
+        notas = request.POST.get('notas', '').strip()
+
+        # VALIDACIONES
+        if not nombre:
+            messages.error(request, "El nombre del contacto es obligatorio")
+            return render(request, 'clientes/nuevo_contacto.html', {'cliente': cliente})
+
+        if email and '@' not in email:
+            messages.error(request, "El email no es válido")
+            return render(request, 'clientes/nuevo_contacto.html', {'cliente': cliente})
+
+        # CREACIÓN
         Contacto.objects.create(
             cliente=cliente,
-            nombre=request.POST['nombre'],
-            email=request.POST.get('email', ''),
-            telefono=request.POST.get('telefono', ''),
-            cargo=request.POST.get('cargo', ''),
-            notas=request.POST.get('notas', '')
+            nombre=nombre,
+            email=email,
+            telefono=telefono,
+            cargo=cargo,
+            notas=notas
         )
+
         messages.success(request, 'Contacto añadido correctamente')
         return redirect('detalles_cliente', id=cliente.id)
 
@@ -119,20 +171,47 @@ def detalles_cliente(request, id):
     })
 
 
-# edicion pero de contacto
+# edición de contacto
 @login_required
 def editar_contacto(request, contacto_id):
-    contacto = get_object_or_404(Contacto, id=contacto_id)
-    cliente = contacto.cliente  # relación
+    contacto = get_object_or_404(
+        Contacto, 
+        id=contacto_id, 
+        cliente__usuario=request.user
+    )
+    cliente = contacto.cliente
 
     if request.method == "POST":
-        contacto.nombre = request.POST.get("nombre")
-        contacto.email = request.POST.get("email")
-        contacto.telefono = request.POST.get("telefono")
-        contacto.cargo = request.POST.get("cargo")
-        contacto.notas = request.POST.get("notas")
+        nombre = request.POST.get("nombre", "").strip()
+        email = request.POST.get("email", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
+        cargo = request.POST.get("cargo", "").strip()
+        notas = request.POST.get("notas", "").strip()
+
+        # VALIDACIONES
+        if not nombre:
+            messages.error(request, "El nombre del contacto es obligatorio")
+            return render(request, "clientes/editar_contacto.html", {
+                "contacto": contacto,
+                "cliente": cliente
+            })
+
+        if email and '@' not in email:
+            messages.error(request, "El email no es válido")
+            return render(request, "clientes/editar_contacto.html", {
+                "contacto": contacto,
+                "cliente": cliente
+            })
+
+        # GUARDAR
+        contacto.nombre = nombre
+        contacto.email = email
+        contacto.telefono = telefono
+        contacto.cargo = cargo
+        contacto.notas = notas
         contacto.save()
 
+        messages.success(request, "Contacto actualizado correctamente")
         return redirect("detalles_cliente", cliente.id)
 
     return render(request, "clientes/editar_contacto.html", {
@@ -141,7 +220,7 @@ def editar_contacto(request, contacto_id):
     })
 
 
-# eliminacion contacto
+# eliminación contacto
 @login_required
 def eliminar_contacto(request, contacto_id):
     contacto = get_object_or_404(Contacto, id=contacto_id)
@@ -157,9 +236,23 @@ def nueva_actividad(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id, usuario=request.user)
 
     if request.method == 'POST':
-        tipo = request.POST['tipo']
-        descripcion = request.POST['descripcion']
+        tipo = request.POST.get('tipo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
 
+        # VALIDACIONES
+        if not tipo:
+            messages.error(request, "El tipo de actividad es obligatorio")
+            return render(request, 'clientes/nueva_actividad.html', {
+                'cliente': cliente
+            })
+
+        if not descripcion:
+            messages.error(request, "La descripción es obligatoria")
+            return render(request, 'clientes/nueva_actividad.html', {
+                'cliente': cliente
+            })
+
+        # CREACIÓN
         Actividad.objects.create(
             cliente=cliente,
             tipo=tipo,
@@ -176,13 +269,37 @@ def nueva_actividad(request, cliente_id):
 
 @login_required
 def editar_actividad(request, actividad_id):
-    actividad = get_object_or_404(Actividad, id=actividad_id)
+    actividad = get_object_or_404(
+        Actividad, 
+        id=actividad_id, 
+        cliente__usuario=request.user
+    )
     cliente = actividad.cliente
 
     if request.method == 'POST':
-        actividad.tipo = request.POST['tipo']
-        actividad.descripcion = request.POST['descripcion']
+        tipo = request.POST.get('tipo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        # VALIDACIONES
+        if not tipo:
+            messages.error(request, "El tipo de actividad es obligatorio")
+            return render(request, 'clientes/editar_actividad.html', {
+                'actividad': actividad,
+                'cliente': cliente
+            })
+
+        if not descripcion:
+            messages.error(request, "La descripción es obligatoria")
+            return render(request, 'clientes/editar_actividad.html', {
+                'actividad': actividad,
+                'cliente': cliente
+            })
+
+        # GUARDAR
+        actividad.tipo = tipo
+        actividad.descripcion = descripcion
         actividad.save()
+
         messages.success(request, 'Actividad actualizada correctamente')
         return redirect('detalles_cliente', cliente.id)
 

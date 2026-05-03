@@ -41,6 +41,14 @@
     </div>
 </header>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
 <div class="container mt-4 bg-white p-4 shadow rounded" style="max-width: 600px;">
     <h2 class="text-center mb-4 text-success">Registrar Actividad</h2>
 
